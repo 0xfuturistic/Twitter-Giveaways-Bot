@@ -42,5 +42,7 @@ retweet_rate = 36
 msg_rate = 30
 # How long to wait after following someone. 1st time the diff is added, afterwards the entire rate is added to the sleep
 follow_rate = 30
+# Enable printing in colors
+print_in_color = False
 
 # I still want to add more features! So please have patience :D

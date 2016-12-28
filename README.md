@@ -59,7 +59,7 @@ If it does contain a ``retweet_tag``, the bot retweets it and proceeds to check 
  
 If the bot finds them in the tweet's text, it'll do its right action. You can find more info in ``config.py``. 
 
-Once the bot is done with analyzing tweet and entering to the giveaway, it will sleep for the seconds defined in the ´´retweet_rate´´ variable; this is 
+Once the bot is done with analyzing tweet and entering to the giveaway, it will sleep for the seconds defined in the ``retweet_rate`` variable; this is 
 what will avoid the bot getting banned, or what will get the bot banned. 
 After the bot has checked all tweets in the list, the script sleeps for the value defined in ``search_rate`` and the loop stars again. 
 

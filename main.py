@@ -4,7 +4,17 @@ import time
 import random
 
 
-print("\033[95mMake sure no config variables are in blank!\033[0m")
+class bcolors:
+    HEADER = '\033[95m' if config.print_in_color else ""
+    OKBLUE = '\033[94m' if config.print_in_color else ""
+    OKGREEN = '\033[92m' if config.print_in_color else ""
+    WARNING = '\033[93m' if config.print_in_color else ""
+    FAIL = '\033[91m' if config.print_in_color else ""
+    ENDC = '\033[0m' if config.print_in_color else ""
+    BOLD = '\033[1m' if config.print_in_color else ""
+    UNDERLINE = '\033[4m' if config.print_in_color else ""
+
+print(bcolors.HEADER + "Make sure no config variables are in blank!")
 # All variables related to the Twitter API
 twitter_api = twitter.Api(consumer_key=config.twitter_credentials["consumer_key"],
                           consumer_secret=config.twitter_credentials["consumer_secret"],
@@ -13,8 +23,8 @@ twitter_api = twitter.Api(consumer_key=config.twitter_credentials["consumer_key"
 
 
 def check():
-    print("\033[92mStarted Analyzing (" + str(time.gmtime().tm_hour) + ":" + str(time.gmtime().tm_min) + ":" + str(
-        time.gmtime().tm_sec) + ") \033[0m")
+    print(bcolors.OKGREEN + "Started Analyzing (" + str(time.gmtime().tm_hour) + ":" + str(time.gmtime().tm_min) + ":" + str(
+        time.gmtime().tm_sec) + ")")
     # Retrieving the last 1000 tweets for each tag and appends them into a list
     searched_tweets = []
     for x in config.search_tags:
@@ -33,7 +43,7 @@ def check():
                     continue
             elif tweet.user.screen_name.lower() in config.banned_users or any(x in tweet.user.name.lower() for x in config.banned_name_keywords):
                 # If it's the original one, we check if the author is banned
-                print("\033[93mAvoided user with ID: " + tweet.user.screen_name + " & Name: " + tweet.user.name + "\033[0m")
+                print(bcolors.WARNING + "Avoided user with ID: " + tweet.user.screen_name + " & Name: " + tweet.user.name + bcolors.ENDC)
                 continue
 
             try:
@@ -42,7 +52,7 @@ def check():
                 # already retweeted. So if that's the case, the except is called and we skip this tweet
                 # If the tweet wasn't retweeted before, we retweet it and check for other stuff
                 twitter_api.PostRetweet(status_id=tweet.id)
-                print("\033[94mRetweeted " + str(tweet.id))
+                print(bcolors.OKBLUE + "Retweeted " + str(tweet.id))
 
                 # MESSAGE
                 if any(x in tweet.text.lower() for x in config.message_tags):
@@ -80,10 +90,10 @@ def check():
                 # In case the error contains sentences that mean the app is probably banned or the user over daily
                 # status update limit, we cancel the function
                 if "Application cannot perform write actions" in str(e) or "User is over daily status update limit" in str(e):
-                    print('\033[91m' + '\033[1m' + str(e) + '\033[0m')
+                    print(bcolors.FAIL + bcolors.BOLD + str(e) + bcolors.ENDC)
                     return
             # And continues with the next item
-    print("\033[92mFinished Analyzing (" + str(len(searched_tweets)) + " tweets analyzed)")
+    print(bcolors.OKGREEN + "Finished Analyzing (" + str(len(searched_tweets)) + " tweets analyzed)")
 
 
 while True:
@@ -91,6 +101,6 @@ while True:
     try:
         check()
     except Exception as e:
-        print('\033[91m' + '\033[1m' + str(e) + '\033[0m')
+        print(bcolors.FAIL + bcolors.BOLD + str(e) + bcolors.ENDC)
     # This is here in case there were not tweets checked
     time.sleep(2*len(config.search_tags))
