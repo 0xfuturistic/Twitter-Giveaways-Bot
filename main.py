@@ -4,7 +4,7 @@ import time
 import random
 
 
-class bcolors:
+class colors:
     HEADER = '\033[95m' if config.print_in_color else ""
     OKBLUE = '\033[94m' if config.print_in_color else ""
     OKGREEN = '\033[92m' if config.print_in_color else ""
@@ -14,16 +14,28 @@ class bcolors:
     BOLD = '\033[1m' if config.print_in_color else ""
     UNDERLINE = '\033[4m' if config.print_in_color else ""
 
-print(bcolors.HEADER + "Make sure no config variables are in blank!")
+print(colors.HEADER + "Make sure no config variables are in blank!")
 # All variables related to the Twitter API
 twitter_api = twitter.Api(consumer_key=config.twitter_credentials["consumer_key"],
                           consumer_secret=config.twitter_credentials["consumer_secret"],
                           access_token_key=config.twitter_credentials["access_token"],
                           access_token_secret=config.twitter_credentials["access_secret"])
+friends = []
+
+try:
+    f = twitter_api.GetFriends(screen_name="only0dallas")
+    friends = [x.screen_name for x in f]
+    print(colors.OKGREEN + "Friends retrieved successfully!")
+except Exception as e:
+    # Friends couldn't be retrieved
+    print(colors.FAIL + colors.BOLD + str(e) + colors.ENDC)
+    print(colors.FAIL + colors.BOLD + "Couldn't retrieve friends. The bot won't unfollow someone random when we start"
+                                        " following someone else. So your account might reach the limit (following 2000"
+                                        " users)" + colors.ENDC)
 
 
 def check():
-    print(bcolors.OKGREEN + "Started Analyzing (" + str(time.gmtime().tm_hour) + ":" + str(time.gmtime().tm_min) + ":" + str(
+    print(colors.OKGREEN + "Started Analyzing (" + str(time.gmtime().tm_hour) + ":" + str(time.gmtime().tm_min) + ":" + str(
         time.gmtime().tm_sec) + ")")
     # Retrieving the last 1000 tweets for each tag and appends them into a list
     searched_tweets = []
@@ -37,13 +49,13 @@ def check():
             # This clause checks if the text contains any retweet_tags
             if tweet.retweeted_status is not None:
                 # In case it is a retweet, we switch to the original one
-                if any(x in tweet.retweeted_status.text.lower() for x in config.retweet_tags) and tweet.retweeted_status.user.screen_name.lower() not in config.banned_users and not any(x in tweet.user.name.lower() for x in config.banned_name_keywords):
+                if any(x in tweet.retweeted_status.text.lower().split() for x in config.retweet_tags):
                     tweet = tweet.retweeted_status
                 else:
                     continue
-            elif tweet.user.screen_name.lower() in config.banned_users or any(x in tweet.user.name.lower() for x in config.banned_name_keywords):
+            if tweet.user.screen_name.lower() in config.banned_users or any(x in tweet.user.name.lower() for x in config.banned_name_keywords):
                 # If it's the original one, we check if the author is banned
-                print(bcolors.WARNING + "Avoided user with ID: " + tweet.user.screen_name + " & Name: " + tweet.user.name + bcolors.ENDC)
+                print(colors.WARNING + "Avoided user with ID: " + tweet.user.screen_name + " & Name: " + tweet.user.name + colors.ENDC)
                 continue
 
             try:
@@ -52,7 +64,7 @@ def check():
                 # already retweeted. So if that's the case, the except is called and we skip this tweet
                 # If the tweet wasn't retweeted before, we retweet it and check for other stuff
                 twitter_api.PostRetweet(status_id=tweet.id)
-                print(bcolors.OKBLUE + "Retweeted " + str(tweet.id))
+                print(colors.OKBLUE + "Retweeted " + str(tweet.id))
 
                 # MESSAGE
                 if any(x in tweet.text.lower() for x in config.message_tags):
@@ -69,15 +81,29 @@ def check():
                 if any(x in tweet.text.lower() for x in config.follow_tags):
                     # If the tweet contains any follow_tags, it automatically follows all the users mentioned in the
                     # tweet (if there's any) + the author
-                    twitter_api.CreateFriendship(screen_name=tweet.user.screen_name)
-                    print("Followed: @" + tweet.user.screen_name)
-                    time.sleep(config.follow_rate - config.retweet_rate if config.follow_rate > config.retweet_rate else 0)
+                    destroyFriends = []
+                    if tweet.user.screen_name not in friends:
+                        twitter_api.CreateFriendship(screen_name=tweet.user.screen_name)
+                        print("Followed: @" + tweet.user.screen_name)
+                        destroyFriends.append(tweet.user.screen_name)
+                        time.sleep(config.follow_rate - config.retweet_rate if config.follow_rate > config.retweet_rate else 0)
                     for name in tweet.user_mentions:
+                        if name.screen_name in friends:
+                            continue
                         twitter_api.CreateFriendship(screen_name=name.screen_name)
                         print("Followed: @" + name.screen_name)
-                        # 1 follow every 86.4s. 86.4 - 36 = 50.4. The first follow adds 50.4, and the next ones 86.4s
-                        time.sleep(config.follow_rate)
-
+                        destroyFriends.append(name.screen_name)
+                    friends.extend(destroyFriends)
+                    # Twitter sets a limit of not following more than 2k people in total (varies depending on followers)
+                    # So every time the bot follows a new user, its deletes another one randomly
+                    if len(friends) >= 2000:
+                        for friend in destroyFriends:
+                            x = friends[random.randint(0, len(friends) - 1)]
+                            while x is friend:
+                                x = friends[random.randint(0, len(friends) - 1)]
+                            print("Unfollowed: @" + x)
+                            twitter_api.DestroyFriendship(screen_name=x)
+                            friends.remove(x)
                 # LIKE
                 if any(x in tweet.text.lower() for x in config.like_tags):
                     # If the tweets contains any like_tags, it automatically likes the tweet
@@ -89,11 +115,11 @@ def check():
             except Exception as e:
                 # In case the error contains sentences that mean the app is probably banned or the user over daily
                 # status update limit, we cancel the function
-                if "Application cannot perform write actions" in str(e) or "User is over daily status update limit" in str(e):
-                    print(bcolors.FAIL + bcolors.BOLD + str(e) + bcolors.ENDC)
+                if "retweeted" not in str(e):
+                    print(colors.FAIL + colors.BOLD + str(e) + colors.ENDC)
                     return
             # And continues with the next item
-    print(bcolors.OKGREEN + "Finished Analyzing (" + str(len(searched_tweets)) + " tweets analyzed)")
+    print(colors.OKGREEN + "Finished Analyzing (" + str(len(searched_tweets)) + " tweets analyzed)")
 
 
 while True:
@@ -101,6 +127,6 @@ while True:
     try:
         check()
     except Exception as e:
-        print(bcolors.FAIL + bcolors.BOLD + str(e) + bcolors.ENDC)
+        print(colors.FAIL + colors.BOLD + str(e) + colors.ENDC)
     # This is here in case there were not tweets checked
     time.sleep(2*len(config.search_tags))
