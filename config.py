@@ -16,6 +16,8 @@ twitter_credentials = {
 }
 # Tags that Twitter will use to look up our tweets. Really important as all the script will be based on them
 search_tags = ["giveaway", "contest", "sorteo", "to win"]
+# Don't start the bot if friends weren't correctly retrieven
+wait_retrieve = False
 # What words will the bot check in order to retweet a tweet. It's important because if the bot doesnt
 # recognize any, it will skip the whole tweet and it wont check if it has to like, msg, or follow
 retweet_tags = ["retweet", "retweetea", "retwitea", " rt"]

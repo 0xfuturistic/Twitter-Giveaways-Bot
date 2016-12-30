@@ -22,16 +22,20 @@ twitter_api = twitter.Api(consumer_key=config.twitter_credentials["consumer_key"
                           access_token_secret=config.twitter_credentials["access_secret"])
 friends = []
 
-try:
-    f = twitter_api.GetFriends(screen_name="only0dallas")
-    friends = [x.screen_name for x in f]
-    print(colors.OKGREEN + "Friends retrieved successfully!")
-except Exception as e:
-    # Friends couldn't be retrieved
-    print(colors.FAIL + colors.BOLD + str(e) + colors.ENDC)
-    print(colors.FAIL + colors.BOLD + "Couldn't retrieve friends. The bot won't unfollow someone random when we start"
-                                        " following someone else. So your account might reach the limit (following 2000"
-                                        " users)" + colors.ENDC)
+while len(friends) is not twitter_api.GetUser(screen_name="only0dallas").friends_count:
+    try:
+        f = twitter_api.GetFriends(screen_name="only0dallas")
+        friends = [x.screen_name for x in f]
+        print(colors.OKGREEN + "Friends retrieved successfully!")
+    except Exception as e:
+        # Friends couldn't be retrieved
+        print(colors.FAIL + colors.BOLD + str(e) + colors.ENDC)
+        print(colors.FAIL + colors.BOLD + "Couldn't retrieve friends. The bot won't unfollow someone random when we start"
+                                            " following someone else. So your account might reach the limit (following 2000"
+                                            " users)" + colors.ENDC)
+        if config.wait_retrieve is False:
+            break
+        time.sleep(600)
 
 
 def check():
