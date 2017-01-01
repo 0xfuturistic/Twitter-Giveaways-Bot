@@ -27,6 +27,7 @@ while len(friends) is not twitter_api.GetUser(screen_name="only0dallas").friends
         f = twitter_api.GetFriends(screen_name="only0dallas")
         friends = [x.screen_name for x in f]
         print(colors.OKGREEN + "Friends retrieved successfully!")
+        break
     except Exception as e:
         # Friends couldn't be retrieved
         print(colors.FAIL + colors.BOLD + str(e) + colors.ENDC)
@@ -42,6 +43,7 @@ def check():
     print(colors.OKGREEN + "Started Analyzing (" + str(time.gmtime().tm_hour) + ":" + str(time.gmtime().tm_min) + ":" + str(
         time.gmtime().tm_sec) + ")")
     # Retrieving the last 1000 tweets for each tag and appends them into a list
+    just_retweet_streak = 0
     searched_tweets = []
     for x in config.search_tags:
         searched_tweets += twitter_api.GetSearch(term=x, count='1000')
@@ -69,17 +71,22 @@ def check():
                 # If the tweet wasn't retweeted before, we retweet it and check for other stuff
                 twitter_api.PostRetweet(status_id=tweet.id)
                 print(colors.OKBLUE + "Retweeted " + str(tweet.id))
-
+                just_retweet_streak += 1
                 # MESSAGE
-                if any(x in tweet.text.lower() for x in config.message_tags):
-                    # If the tweet contains any of the message_tags, we send a DM to the author with a random sentence
-                    # from the message_text list
-                    twitter_api.PostDirectMessage(
-                        text=config.message_text[random.randint(0, len(config.message_text) - 1)],
-                        screen_name=tweet.user.screen_name)
-                    print("DM sent to: " + tweet.user.screen_name)
-                    # 1 every 86.4s guarantees we won't pass the 1000 DM per day limit
-                    time.sleep(config.msg_rate)
+                try:
+                    # So we don't skip the tweet if we get the "You cannot send messages to users who are not following you." error
+                    if config.use_msgs is True and any(x in tweet.text.lower() for x in config.message_tags):
+                        # If the tweet contains any of the message_tags, we send a DM to the author with a random
+                        # sentence from the message_text list
+                        twitter_api.PostDirectMessage(
+                            text=config.message_text[random.randint(0, len(config.message_text) - 1)],
+                            screen_name=tweet.user.screen_name)
+                        print("DM sent to: " + tweet.user.screen_name)
+                        just_retweet_streak = 0
+                        # 1 every 86.4s guarantees we won't pass the 1000 DM per day limit
+                        time.sleep(config.msg_rate)
+                except:
+                    pass
 
                 # FOLLOW
                 if any(x in tweet.text.lower() for x in config.follow_tags):
@@ -90,13 +97,16 @@ def check():
                         twitter_api.CreateFriendship(screen_name=tweet.user.screen_name)
                         print("Followed: @" + tweet.user.screen_name)
                         destroyFriends.append(tweet.user.screen_name)
+                        just_retweet_streak = 0
                         time.sleep(config.follow_rate - config.retweet_rate if config.follow_rate > config.retweet_rate else 0)
                     for name in tweet.user_mentions:
-                        if name.screen_name in friends:
+                        if name.screen_name in friends or name.screen_name in destroyFriends:
                             continue
                         twitter_api.CreateFriendship(screen_name=name.screen_name)
                         print("Followed: @" + name.screen_name)
                         destroyFriends.append(name.screen_name)
+                        just_retweet_streak = 0
+                        time.sleep(config.retweet_rate)
                     friends.extend(destroyFriends)
                     # Twitter sets a limit of not following more than 2k people in total (varies depending on followers)
                     # So every time the bot follows a new user, its deletes another one randomly
@@ -109,13 +119,18 @@ def check():
                             twitter_api.DestroyFriendship(screen_name=x)
                             friends.remove(x)
                 # LIKE
-                if any(x in tweet.text.lower() for x in config.like_tags):
-                    # If the tweets contains any like_tags, it automatically likes the tweet
-                    twitter_api.CreateFavorite(status_id=tweet.id)
-                    print("Liked: " + str(tweet.id))
+                try:
+                    # So we don't skip the tweet if we get the "You have already favorited this status." error
+                    if any(x in tweet.text.lower() for x in config.like_tags):
+                        # If the tweets contains any like_tags, it automatically likes the tweet
+                        twitter_api.CreateFavorite(status_id=tweet.id)
+                        print("Liked: " + str(tweet.id))
+                        just_retweet_streak = 0
+                except:
+                    pass
                 # Max is 2400 tweets per day in windows of half an hour. Thus, 36s as interval guarantees as we won't
                 # pass that amount
-                time.sleep(config.retweet_rate)
+                time.sleep(config.retweet_rate * (just_retweet_streak + 1))
             except Exception as e:
                 # In case the error contains sentences that mean the app is probably banned or the user over daily
                 # status update limit, we cancel the function
@@ -132,5 +147,6 @@ while True:
         check()
     except Exception as e:
         print(colors.FAIL + colors.BOLD + str(e) + colors.ENDC)
+        time.sleep(100*len(config.search_tags))
     # This is here in case there were not tweets checked
     time.sleep(2*len(config.search_tags))
