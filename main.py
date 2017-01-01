@@ -14,7 +14,7 @@ class colors:
     BOLD = '\033[1m' if config.print_in_color else ""
     UNDERLINE = '\033[4m' if config.print_in_color else ""
 
-print(colors.HEADER + "Make sure no config variables are in blank!")
+print(colors.HEADER + "Remember you can change the settings in config.py!")
 # All variables related to the Twitter API
 twitter_api = twitter.Api(consumer_key=config.twitter_credentials["consumer_key"],
                           consumer_secret=config.twitter_credentials["consumer_secret"],
@@ -22,9 +22,11 @@ twitter_api = twitter.Api(consumer_key=config.twitter_credentials["consumer_key"
                           access_token_secret=config.twitter_credentials["access_secret"])
 friends = []
 
-while len(friends) is not twitter_api.GetUser(screen_name="only0dallas").friends_count:
+screen_name = twitter_api.VerifyCredentials().screen_name
+
+while len(friends) is not twitter_api.GetUser(screen_name=screen_name).friends_count:
     try:
-        f = twitter_api.GetFriends(screen_name="only0dallas")
+        f = twitter_api.GetFriends(screen_name=screen_name)
         friends = [x.screen_name for x in f]
         print(colors.OKGREEN + "Friends retrieved successfully!")
         break
