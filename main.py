@@ -20,9 +20,10 @@ twitter_api = twitter.Api(consumer_key=config.twitter_credentials["consumer_key"
                           consumer_secret=config.twitter_credentials["consumer_secret"],
                           access_token_key=config.twitter_credentials["access_token"],
                           access_token_secret=config.twitter_credentials["access_secret"])
-friends = []
 
 screen_name = twitter_api.VerifyCredentials().screen_name
+
+friends = []
 
 while len(friends) is not twitter_api.GetUser(screen_name=screen_name).friends_count:
     try:
