@@ -14,6 +14,7 @@ twitter_credentials = {
     "access_token": '',
     "access_secret": '',
 }
+# DON'T WRITE ANYTHING IN CAPS, AS THE BOT AUTOMATICALLY FLATTERS ALL INPUT TEXTS. THUS ANY WORD WITH CAPS WON'T BE RECOGNIZED
 # Tags that Twitter will use to look up our tweets. Really important as all the script will be based on them
 search_tags = ["giveaway", "contest", "sorteo", "to win"]
 # Don't start the bot if friends weren't correctly retrieved
