@@ -95,32 +95,34 @@ def check():
                 if any(x in tweet.text.lower() for x in config.follow_tags):
                     # If the tweet contains any follow_tags, it automatically follows all the users mentioned in the
                     # tweet (if there's any) + the author
-                    destroyFriends = []
+                    addFriends = []
+                    friends_count = twitter_api.GetUser(screen_name=screen_name).friends_count
                     if tweet.user.screen_name not in friends:
-                        twitter_api.CreateFriendship(screen_name=tweet.user.screen_name)
                         print("Followed: @" + tweet.user.screen_name)
-                        destroyFriends.append(tweet.user.screen_name)
+                        twitter_api.CreateFriendship(screen_name=tweet.user.screen_name)
+                        addFriends.append(tweet.user.screen_name)
                         just_retweet_streak = 0
                         time.sleep(config.follow_rate - config.retweet_rate if config.follow_rate > config.retweet_rate else 0)
                     for name in tweet.user_mentions:
-                        if name.screen_name in friends or name.screen_name in destroyFriends:
+                        if name.screen_name in friends or name.screen_name in addFriends:
                             continue
-                        twitter_api.CreateFriendship(screen_name=name.screen_name)
                         print("Followed: @" + name.screen_name)
-                        destroyFriends.append(name.screen_name)
+                        twitter_api.CreateFriendship(screen_name=name.screen_name)
+                        addFriends.append(name.screen_name)
                         just_retweet_streak = 0
                         time.sleep(config.retweet_rate)
-                    friends.extend(destroyFriends)
                     # Twitter sets a limit of not following more than 2k people in total (varies depending on followers)
                     # So every time the bot follows a new user, its deletes another one randomly
-                    if len(friends) >= 2000:
-                        for friend in destroyFriends:
-                            x = friends[random.randint(0, len(friends) - 1)]
-                            while x is friend:
+                    if friends_count >= 2000:
+                        while friends_count < twitter_api.GetUser(screen_name=screen_name).friends_count:
+                            try:
                                 x = friends[random.randint(0, len(friends) - 1)]
-                            print("Unfollowed: @" + x)
-                            twitter_api.DestroyFriendship(screen_name=x)
-                            friends.remove(x)
+                                print("Unfollowed: @" + x)
+                                twitter_api.DestroyFriendship(screen_name=x)
+                                friends.remove(x)
+                            except Exception as e:
+                                print(e)
+                    friends.extend(addFriends)
                 # LIKE
                 try:
                     # So we don't skip the tweet if we get the "You have already favorited this status." error
