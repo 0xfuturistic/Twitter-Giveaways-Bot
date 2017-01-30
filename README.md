@@ -1,17 +1,17 @@
 # Twitter Giveaways Bot
 
 A bot that will constantly look for new *giveaways* and *contests* on **Twitter**; and enter to *all* of them!
-It will do whatever it's needed, either retweeting or liking something, and even following or DMing someone :D
+It will do whatever it's needed, either retweeting or liking something, or even following and DMing someone :D
 
-Limits are pretty high; the bot can enter to more than **1000 giveaways per day**, so it's highly likely that you'll win several giveaways :)
+Limits are pretty high; the bot can enter to more than **1000 giveaways per day**, so it's likely that you'll win several giveaways :)
 
 ## Getting Started
 
-These instructions will get your bot started and entering to contests!
+These instructions will get your bot started in minutes.
 
 ### Prerequisites
 
-Things you need to have installed in order to be able to run the script in the first place
+Things you need to have installed in order to be able to run the script.
 
 ```
 Python 3.5
@@ -31,11 +31,11 @@ You should also download both scripts: ``main.py`` and ``config.py``. Preferably
 Once there, open the ``config.py`` file with a text editor; don't run it!
 This file has all the variables the main script will use. Give each one of them the values you want, or just leave them by default.
 
-However, you do need to change the first variable; ``twitter_credentials``. As it contains all the credentials related to the Twitter API; 
+However, you do need to change the first variable: ``twitter_credentials``. As it contains all the credentials related to the Twitter API; 
 they can't stay blank (what's by default) if you want the bot to connect to Twitter.
 
 #### Twitter App
-This is meant to be a short guide on how to get the twitter credentials the bot needs to have. Here I assume you already have Twitter account, if you don't please make one now. 
+This is meant to be a short guide on how to get the twitter credentials your bot will need. Here I assume you already have Twitter account, if you don't please make one now. 
 ##### Steps: 
 * Enter to [Twitter Apps](https://apps.twitter.com/) and click the `Create New App` button
 * Fill out all details and create the app
@@ -46,8 +46,8 @@ the ``config.py``'s ``twitter_credentials`` variable.
 If you've followed the steps correctly, now to start the bot you just need to run the ``main.py`` script. **Experiment with the variables at your own risk.**
 
 ## How it works
-As soon as the script starts, the bot authenticates to Twitter and searches tweets with the tags given in the ``search_tags`` variable. It stores them in a list so then in can 
-iterate through each one of them, and checks if they contains any ``retweet_tags``; it would be very weird not have to retweet anything, that usually means you have to open a link
+As soon as the script starts, the bot authenticates to Twitter and searches for tweets with the tags given in the ``search_tags`` variable. It stores them in a list so then in can 
+iterate through each one of them, and checks if they contain any ``retweet_tags``; it would be very weird not having to retweet anything, that usually means you have to open a link
 to enter, thus it isn't a Twitter giveaway anymore and we skip the whole tweet.
 
 
@@ -65,12 +65,11 @@ After the bot has checked all tweets in the list, the script sleeps for the valu
 
 To check the limits Twitter sets please refer to [Twitter's Rate Limits](https://dev.twitter.com/rest/public/rate-limits) and [Twitter’s Account Limits](https://support.twitter.com/articles/344781).
 
-*The bot prints everything into the console with colors and all, so it's easy to track what's going on. And all files are well commented*
+*The bot prints everything into the console with colors and all, so it's easy to see what's going on. And all files are well commented*
 
 ## Disclaimer
 
-This is entirely for educational purpose. Use at your own risk and responsibility, there's a possibility that your Twitter gets banned. I hold no liability for what you use the bot for and
-the consequences.
+This is entirely for educational purpose. Use at your own risk and responsibility, there's a possibility that your Twitter account gets banned. I hold no liability for what you use the bot for or the consequences.
 
 ## Authors
 
