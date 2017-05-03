@@ -79,6 +79,10 @@ This is entirely for educational purpose. Use at your own risk and responsibilit
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
+## Troubleshooting
+
+Rate limit exceeded => All info [here](https://github.com/imdiegoestevez/Twitter-Giveaways-Bot/issues/1)
+
 ## Acknowledgments
 
 * Thank you [Hunter Scott](http://www.hscott.net/twitter-contest-winning-as-a-service/) for your inspiration!
