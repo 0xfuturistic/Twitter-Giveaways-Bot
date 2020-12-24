@@ -23,7 +23,7 @@ wait_retrieve = False
 use_msgs = False
 
 #Ignore tweets that contain any of these words
-skip_retweet_tags = ["onlyfans.com","throat","bone","naked","selfie","photo","onlyfans","nude","+18","femdom","fendom","whatsapp","sex","xxx","daddy","mommy","sugar","vid","#imgxnct","pic","tits" ,"booty" ,"boob", "freenude","cum", "dick" ,"gay" ,"hot", "ass", "fuck", "suck", "cock", "lick","pussy" ]
+BadList = ["throat","bone","naked","selfie","photo","onlyfans","nude","+18","femdom","fendom","whatsapp","sex","xxx","daddy","mommy","sugar","vid","#imgxnct","pic","tits" ,"booty" ,"boob", "freenude","cum", "dick" ,"gay" ,"onlyfans.com","hot", "ass", "fuck", "suck", "cock", "lick","pussy" ]
 
 # What words will the bot check in order to retweet a tweet. It's important because if the bot doesnt
 # recognize any, it will skip the whole tweet and it wont check if it has to like, msg, or follow
