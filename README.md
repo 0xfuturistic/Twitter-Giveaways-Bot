@@ -7,8 +7,8 @@ Limits are pretty high; the bot can enter to more than **1000 giveaways per day*
 
 ## What's new? 😃
 * Added ban keyword list (ignore tweets that contain certain keywords)
-* Don't retweet tweets that has a few number of retweets (to avoid retweeting fake giveaways)
-* Don't retweet old tweets (you can set the bot to ignore tweets that's older than 30 days for example)
+* Don't retweet tweets that have a few numbers of retweets (to avoid retweeting fake giveaways)
+* Don't retweet old tweets (you can set the bot to ignore tweets that're older than 30 days for example)
 
 
 ## Getting Started
