@@ -52,7 +52,7 @@ def check():
     for x in config.search_tags:
         searched_tweets += twitter_api.GetSearch(term=x, count='1000')
 
-        for tweet in searched_tweets:
+    for tweet in searched_tweets:
         # get tweet publish date
         tweet_date = datetime.strptime(tweet.created_at,"%a %b %d %H:%M:%S %z %Y")
         # get current date and time
@@ -62,13 +62,13 @@ def check():
         # check if tweet contains any of the words in BadList
         Bad= False
         for BadWord in config.BadList:
-            if (tweet.text.lower().find(BadWord) != -1): 
+            if (tweet.text.lower().find(BadWord) != -1):
                 Bad = True
-                
+
         # only retweet if tweet has more than 20 retweets and was puplished in the past 30 days
         if tweet.retweet_count>20 and difference.days<=30:
             if not (Bad): #if tweet doesn't contain bad words
-                
+
                 # The script only cares about contests that require retweeting.
                 if any(x in tweet.text.lower().split() for x in config.retweet_tags):
                     # This clause checks if the text contains any retweet_tags
